@@ -147,7 +147,11 @@ body {
 }
 
 .like-button:hover {
-    filter: saturate(50);
+    filter: none;
+}
+
+.like-count {
+    margin-left: 5px;
 }
 
 @media screen and (min-width: 1200px) {

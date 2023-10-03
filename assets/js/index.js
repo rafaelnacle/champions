@@ -41,7 +41,7 @@ publishBtn.addEventListener('click', function () {
   } else {
     commentsSectionEl.style.color = "red"
     commentsSectionEl.style.textAlign = "center"
-    commentsSectionEl.textContent = "Please enter your endorsement!"
+    commentsSectionEl.textContent = "The text area can't be blank!"
   }
 
 })
@@ -96,29 +96,26 @@ function getUserLikesRef(commentId) {
 function updateLikesCountInDatabase(commentId) {
   const commentRef = ref(database, `comments/${commentId}`);
   const userLikesRef = getUserLikesRef(commentId);
-
   return get(userLikesRef)
     .then(snapshot => {
       if (snapshot.exists()) {
         console.log("User already liked this comment.");
         return;
       }
-
       return get(commentRef)
         .then(snapshot => {
           if (!snapshot.exists()) {
             throw new Error("Comment not found in the database");
           }
-
           const currentComment = snapshot.val();
           const currentLikes = currentComment.likes || 0;
           currentComment.likes = currentLikes + 1;
-
-          return set(commentRef, currentComment)
-            .then(() => set(userLikesRef, true))
-            .then(() => {
-              console.log("Like updated successfully.");
-            });
+          return Promise.all([
+            set(commentRef, currentComment),
+            set(userLikesRef, true)
+          ]).then(() => {
+            console.log("Like updated successfully.");
+          });
         });
     })
     .catch(error => {
